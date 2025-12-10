@@ -37,6 +37,7 @@ out/
 .vscode/
 
 ### Secret Files ###
-src/main/resources/application.yml
 
 photos/
+
+.env
