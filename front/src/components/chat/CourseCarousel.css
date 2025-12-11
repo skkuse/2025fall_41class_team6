@@ -1,0 +1,84 @@
+/* src/components/chat/CourseCarousel.css */
+/* ... 기존 wrapper, container, nav-btn 등 레이아웃 속성은 유지 ... */
+
+.carousel-wrapper {
+    position: relative; display: flex; align-items: center; width: 100%;
+}
+.carousel-container {
+    display: flex; gap: 16px; overflow-x: auto; padding: 10px 4px;
+    scroll-behavior: smooth; scrollbar-width: none; width: 100%;
+}
+.carousel-container::-webkit-scrollbar { display: none; }
+
+.course-card {
+    flex: 0 0 260px;
+    background: white;
+    border: 1px solid #fce7f3;
+    border-radius: 16px;
+    padding: 20px;
+    /* 부드러운 핑크 그림자 */
+    box-shadow: 0 4px 6px -1px rgba(251, 113, 133, 0.1), 0 2px 4px -1px rgba(251, 113, 133, 0.06);
+    display: flex; flex-direction: column; transition: transform 0.2s;
+}
+
+.course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(251, 113, 133, 0.2);
+    border-color: #fecdd3;
+}
+
+.course-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #be123c; /* 진한 로즈색 */
+    margin-bottom: 8px;
+}
+
+.course-desc {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+    flex: 1;
+    line-height: 1.5;
+}
+
+.place-badges {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
+}
+
+.place-badge {
+    font-size: 0.75rem;
+    background-color: #fff1f2; /* 연한 핑크 배경 */
+    color: #e11d48; /* 글자색 */
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.apply-btn {
+    width: 100%;
+    padding: 10px;
+    /* ★ 버튼: 그라데이션 핑크 */
+    background: linear-gradient(to right, #fb7185, #e11d48);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: opacity 0.2s;
+}
+
+.apply-btn:hover { opacity: 0.9; }
+
+/* ... 화살표 버튼 스타일 (기존 유지하되 색상만 조정) ... */
+.nav-btn {
+    /* ... 기존 위치 속성 ... */
+    position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px;
+    background-color: white; border: 1px solid #fecdd3; color: #e11d48;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.nav-btn:hover { background-color: #fff1f2; }
+.nav-btn.left { left: -10px; }
+.nav-btn.right { right: -10px; }

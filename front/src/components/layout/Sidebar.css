@@ -1,0 +1,133 @@
+/* src/components/layout/Sidebar.css */
+.sidebar-container {
+    background-color: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: width 0.3s ease, opacity 0.2s ease;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.sidebar-container.open {
+    width: 260px;
+    opacity: 1;
+}
+
+.sidebar-container.closed {
+    width: 0;
+    opacity: 0;
+    border-right: none;
+}
+
+.sidebar-header {
+    padding: 16px;
+}
+
+.new-chat-btn {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #e11d48; /* 핑크 테마 */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.new-chat-btn:hover {
+    background-color: #be123c;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 0 12px;
+    overflow-y: auto;
+}
+
+.section-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+    margin: 16px 12px 8px;
+}
+
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #334155;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.chat-item:hover {
+    background-color: #e2e8f0;
+}
+
+.chat-icon {
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+.chat-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.footer-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+/* .chat-item.active 스타일 추가 */
+.chat-item.active {
+    background-color: #fff1f2; /* 연한 핑크 배경 */
+    color: #e11d48; /* 핑크 텍스트 */
+    font-weight: 600;
+}
+
+/* 삭제 버튼 스타일 */
+.delete-chat-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: auto; /* 우측 끝으로 밀기 */
+    padding: 0 4px;
+    opacity: 0; /* 평소엔 숨김 */
+    transition: opacity 0.2s;
+}
+
+.chat-item:hover .delete-chat-btn {
+    opacity: 1; /* 호버 시 보임 */
+}
+
+.delete-chat-btn:hover {
+    color: #ef4444;
+}

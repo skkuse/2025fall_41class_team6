@@ -1,0 +1,36 @@
+/* src/index.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    /* 폰트를 좀 더 둥글고 부드러운 느낌으로 */
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    /* ★ 배경색: 연한 핑크 */
+    background-color: #fff1f2;
+    color: #374151; /* 폰트 색상을 완전 블랙보다 부드럽게 */
+    overflow: hidden;
+}
+
+#root {
+    height: 100%;
+}
+
+/* 스크롤바도 핑크 톤으로 맞춤 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #fff1f2;
+}
+::-webkit-scrollbar-thumb {
+    background: #fecdd3; /* 연한 핑크바 */
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #fb7185;
+}

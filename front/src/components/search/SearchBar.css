@@ -1,0 +1,47 @@
+/* src/components/search/SearchBar.css */
+.search-form { width: 100%; max-width: 700px; margin: 0 auto; }
+.search-wrapper { display: flex; gap: 10px; }
+
+.search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #fecdd3; /* 연한 핑크 테두리 */
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    color: #4b5563;
+    background-color: #fff;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    border-color: #fb7185;
+    box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.2);
+}
+
+.search-input::placeholder {
+    color: #d1d5db;
+}
+
+.search-btn {
+    padding: 0 24px;
+    /* ★ 버튼 색상: 핫핑크 */
+    background-color: #e11d48;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.search-btn:hover {
+    background-color: #be123c;
+    transform: translateY(-1px);
+}
+
+.search-btn:disabled {
+    background-color: #fecdd3;
+    cursor: not-allowed;
+    transform: none;
+}

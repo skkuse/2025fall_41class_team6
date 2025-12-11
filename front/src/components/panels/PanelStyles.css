@@ -1,0 +1,41 @@
+/* src/components/panels/PanelStyles.css */
+
+.panel-container {
+    background-color: white;
+    border-radius: 20px; /* 더 둥글게 */
+    /* 그림자를 부드러운 핑크빛으로 */
+    box-shadow: 0 10px 25px -5px rgba(255, 182, 193, 0.4), 0 8px 10px -6px rgba(255, 182, 193, 0.2);
+    border: 1px solid #fce7f3;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.panel-header {
+    padding: 16px 20px;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* ★ 헤더 배경: 핑크 그라데이션 */
+    background: linear-gradient(to right, #fb7185, #e11d48);
+}
+
+.panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #fff; /* 완전 흰색으로 깔끔하게 */
+}
+
+.empty-text {
+    color: #9ca3af;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.95rem;
+}
