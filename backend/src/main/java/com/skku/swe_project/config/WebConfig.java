@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000", // 1. 프론트엔드 개발자가 로컬에서 띄울 때
                         "http://localhost:5173", // (Vite 쓰는 경우)
-                        "https://프론트엔드-배포주소.vercel.app" // 2. 나중에 배포 주소 나오면 여기 추가!
+                        "https://software-engineering6.vercel.app" // 2. 나중에 배포 주소 나오면 여기 추가!
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                 .allowedHeaders("*")
