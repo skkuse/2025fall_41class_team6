@@ -166,6 +166,7 @@ public class OpenAiService {
 
         return callGpt(prompt);
     }
+    
 
     // 4. 리뷰 요약
     public String summarizeReviews(String placeName, List<String> reviews) {
@@ -223,4 +224,44 @@ public class OpenAiService {
             return "죄송해요, AI가 잠시 휴식 중이에요 ㅠㅠ";
         }
     }
+
+    public String generateKakaoSearchKeyword(String location, String userQuery) {
+    String locLine = (location != null && !location.isBlank())
+            ? "location: " + location
+            : "location: (unknown)";
+
+    String prompt = """
+            너는 KakaoMap 키워드 검색에 넣을 '짧은 검색어'를 만드는 역할이야.
+            사용자의 자연어 요청을 보고, Kakao 검색에 가장 적합한 형태로 정규화해줘.
+
+            규칙:
+            1) 출력은 한국어 한 줄만. 따옴표/설명/마크다운 금지.
+            2) 불필요한 수식어 제거: "분위기 좋은", "추천해줘", "찾아줘", "어디야" 같은 말 제거.
+            3) 핵심 업종/요리 키워드는 반드시 남겨: 예) 파스타/스시/초밥/고기/삼겹살/이자카야/브런치/디저트/베이커리/카페 등
+            4) location이 있으면 맨 앞에 붙여: "<지역> <핵심키워드>"
+               location이 없으면 userQuery에서 지역을 추출해서 앞에 붙여.
+               지역도 없으면 키워드만 출력.
+            5) 예시:
+               - "서울에서 분위기 좋은 파스타집 추천" -> "서울 파스타"
+               - "용산구 데이트 이자카야" -> "용산구 이자카야"
+               - "홍대 브런치 카페" -> "홍대 브런치 카페"
+
+            입력:
+            %s
+            userQuery: %s
+
+            출력:
+            """.formatted(locLine, userQuery);
+
+    String out = callGpt(prompt);
+    if (out == null) return null;
+
+    // 혹시라도 코드블록 오면 제거
+    out = out.replace("```", "").trim();
+
+    // 너무 길면(문장처럼 나오면) 앞부분만 잘라서라도 사용 (안전장치)
+    if (out.length() > 40) out = out.substring(0, 40).trim();
+
+    return out;
+}
 }
