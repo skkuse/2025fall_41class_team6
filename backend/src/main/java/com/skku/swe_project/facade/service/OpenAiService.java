@@ -30,75 +30,64 @@ public class OpenAiService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
     // 1. 사용자 의도 파악 (FOOD / SPOT / COURSE + location)
+    // ✅ [수정] history 파라미터 추가
     public IntentResultDto analyzeUserQuery(String userQuery, List<RecommendationRequest.Message> history) {
 
-        // 1-1. 대화 기록 변환 (기존 코드 동일)
+        // 1-1. 대화 기록(history)을 프롬프트용 문자열로 변환
         StringBuilder conversationHistory = new StringBuilder();
         if (history != null && !history.isEmpty()) {
             conversationHistory.append("[이전 대화 내용]\n");
             for (RecommendationRequest.Message msg : history) {
+                // role이 "user"면 사용자, "assistant"면 AI
                 String speaker = "user".equals(msg.getRole()) ? "사용자" : "AI";
                 conversationHistory.append(String.format("- %s: %s\n", speaker, msg.getContent()));
             }
             conversationHistory.append("\n");
         }
 
-        // 1-2. 🚨 [수정 핵심] 프롬프트를 강력하게 변경!
-        // - "JSON만 출력해"라고 영어/한글로 강조
-        // - 예시를 명확하게 줌
+        // 1-2. 프롬프트 구성 (이전 대화를 참고해서 의도와 장소를 파악하도록 지시)
         String prompt = """
-                You are an intent analysis AI. Analyze the user's request and return the result in JSON format only.
-                Do not include any explanations, markdown code blocks, or extra text. Just the JSON object.
+                너는 데이트 장소 추천 전문가야. 사용자의 질문을 분석해서 JSON 형식으로 답해줘.
                 
                 %s
-                [Current User Input]: "%s"
-                
-                [Analysis Rules]
-                1. intent:
-                   - If user wants to eat/drink (restaurant, cafe, bar) -> "FOOD"
-                   - If user wants to visit/play (attraction, park, activity) -> "SPOT"
-                   - If user wants both, or asks for a 'course' -> "COURSE"
-                   - If unsure -> "COURSE"
-                
-                2. location:
-                   - Extract the specific location name (e.g., 'Gangnam', 'Hongdae', 'Seongsu').
-                   - ⭐ IMPORTANT: If the current input has no location, look at [이전 대화 내용] to find the most recent location.
-                   - If no location is found in context, set it to null.
-                
-                [Output Format Example]
-                {"intent": "COURSE", "location": "강남"}
-                OR
-                {"intent": "FOOD", "location": null}
+                [현재 사용자 질문]: "%s"
+                                
+                [분석 규칙]
+                1. intent: 
+                   - '맛집', '술집', '카페' 등 먹는 곳을 원하면 FOOD
+                   - '명소', '놀거리', '산책', '관광지'를 원하면 SPOT
+                   - 둘 다 원하거나 '데이트 코스'를 짜달라고 하면 COURSE
+                   - 분류하기 애매하면 COURSE
+                2. location: 
+                   - 사용자가 언급한 지역명(예: 강남역, 홍대, 부산 등).
+                   - ⭐ 중요: 만약 현재 질문에 지역명이 없다면, [이전 대화 내용]에서 가장 최근에 언급된 지역을 찾아서 적어줘.
+                   - 그래도 없으면 null.
+                                
+                [응답 형식(JSON 만 출력)]:
+                {"intent": "...", "location": "..."}
                 """.formatted(conversationHistory.toString(), userQuery);
 
         // 1-3. GPT 호출
         String jsonResponse = callGpt(prompt);
 
         try {
-            // 🚨 [수정] JSON 파싱 강화
-            // GPT가 가끔 ```json ... ``` 또는 그냥 텍스트를 섞어 보낼 때 순수 JSON만 발라내기
-            int firstBrace = jsonResponse.indexOf("{");
-            int lastBrace = jsonResponse.lastIndexOf("}");
-
-            if (firstBrace != -1 && lastBrace != -1) {
-                // { 부터 } 까지만 잘라냄
-                jsonResponse = jsonResponse.substring(firstBrace, lastBrace + 1);
-            } else {
-                // JSON 형식이 아예 없으면 기본값 리턴
-                log.warn("GPT 응답에 JSON이 없습니다. 원본: {}", jsonResponse);
-                return new IntentResultDto("COURSE", null);
+            // JSON 포맷팅 제거 (Markdown 코드블록 제거)
+            if (jsonResponse.contains("```json")) {
+                jsonResponse = jsonResponse.replace("```json", "")
+                        .replace("```", "")
+                        .trim();
+            } else if (jsonResponse.contains("```")) {
+                jsonResponse = jsonResponse.replace("```", "").trim();
             }
 
             return objectMapper.readValue(jsonResponse, IntentResultDto.class);
-
         } catch (Exception e) {
-            log.error("JSON 파싱 실패. 응답값: {}", jsonResponse, e);
-            // 파싱 실패 시 안전하게 기본값 반환
+            log.error("JSON 파싱 실패: {}", jsonResponse, e);
             return new IntentResultDto("COURSE", null);
         }
     }
+
     // 2. 데이트 코스 요약 멘트 (명소 + 맛집 공용)
     // (이 메서드는 크게 수정할 필요 없으나, 원하면 history를 추가해서 문맥을 더 살릴 수 있음)
     public String makeCourseSummary(List<PlaceDto> spots, List<PlaceDto> foods) {
@@ -177,6 +166,7 @@ public class OpenAiService {
 
         return callGpt(prompt);
     }
+    
 
     // 4. 리뷰 요약
     public String summarizeReviews(String placeName, List<String> reviews) {
@@ -234,4 +224,44 @@ public class OpenAiService {
             return "죄송해요, AI가 잠시 휴식 중이에요 ㅠㅠ";
         }
     }
+
+    public String generateKakaoSearchKeyword(String location, String userQuery) {
+    String locLine = (location != null && !location.isBlank())
+            ? "location: " + location
+            : "location: (unknown)";
+
+    String prompt = """
+            너는 KakaoMap 키워드 검색에 넣을 '짧은 검색어'를 만드는 역할이야.
+            사용자의 자연어 요청을 보고, Kakao 검색에 가장 적합한 형태로 정규화해줘.
+
+            규칙:
+            1) 출력은 한국어 한 줄만. 따옴표/설명/마크다운 금지.
+            2) 불필요한 수식어 제거: "분위기 좋은", "추천해줘", "찾아줘", "어디야" 같은 말 제거.
+            3) 핵심 업종/요리 키워드는 반드시 남겨: 예) 파스타/스시/초밥/고기/삼겹살/이자카야/브런치/디저트/베이커리/카페 등
+            4) location이 있으면 맨 앞에 붙여: "<지역> <핵심키워드>"
+               location이 없으면 userQuery에서 지역을 추출해서 앞에 붙여.
+               지역도 없으면 키워드만 출력.
+            5) 예시:
+               - "서울에서 분위기 좋은 파스타집 추천" -> "서울 파스타"
+               - "용산구 데이트 이자카야" -> "용산구 이자카야"
+               - "홍대 브런치 카페" -> "홍대 브런치 카페"
+
+            입력:
+            %s
+            userQuery: %s
+
+            출력:
+            """.formatted(locLine, userQuery);
+
+    String out = callGpt(prompt);
+    if (out == null) return null;
+
+    // 혹시라도 코드블록 오면 제거
+    out = out.replace("```", "").trim();
+
+    // 너무 길면(문장처럼 나오면) 앞부분만 잘라서라도 사용 (안전장치)
+    if (out.length() > 40) out = out.substring(0, 40).trim();
+
+    return out;
+}
 }
